@@ -1,0 +1,257 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>C Visualized (c) RMS</title>
+<style>
+:root{--bg:#f4f6fb;--pn:#fff;--tx:#1b2030;--mu:#667089;--bd:#d3d8e6;--ac:#2f6fed;--hl:#ffe7a0;--ok:#16895a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0d111b;--pn:#171d2d;--tx:#e6e9f4;--mu:#9aa3bd;--bd:#2c3550;--ac:#5b8cff;--hl:#5a4710;--ok:#4cd39a}}
+:root[data-theme=dark]{--bg:#0d111b;--pn:#171d2d;--tx:#e6e9f4;--mu:#9aa3bd;--bd:#2c3550;--ac:#5b8cff;--hl:#5a4710;--ok:#4cd39a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.m,pre,.blk b,.c,.f,.bt,.o,small{font-family:ui-monospace,Consolas,Menlo,monospace}
+button{font:inherit;cursor:pointer;border:1px solid var(--bd);background:var(--pn);color:var(--tx);border-radius:8px;padding:6px 12px}
+button:hover{border-color:var(--ac)}.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;padding:10px 16px;background:var(--pn);border-bottom:1px solid var(--bd)}
+h1{font-size:18px;margin:0}nav{display:flex;gap:6px;flex-wrap:wrap}.mu{color:var(--mu);font-size:13px}
+main{display:grid;grid-template-columns:230px 1fr;gap:12px;padding:12px 16px;max-width:1320px;margin:auto}
+section{display:flex;flex-direction:column;gap:10px;min-width:0}
+.pn{background:var(--pn);border:1px solid var(--bd);border-radius:10px;padding:10px}
+aside h3{margin:0 0 8px}.op{display:block;width:100%;text-align:left;margin-bottom:6px}.op u{text-decoration:none;opacity:.6;margin-right:4px}
+#info h2{margin:0;font-size:19px}#info p{margin:4px 0 0;color:var(--mu)}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.ctl input[type=range]{flex:1;min-width:120px}
+.note{padding:10px 14px;border-left:4px solid var(--ok);background:var(--pn);border-radius:6px;min-height:46px}
+.cols{display:grid;grid-template-columns:minmax(260px,5fr) 7fr;gap:10px}
+.code{background:#0f1424;color:#dbe4ff;padding:8px 0;overflow:auto}
+.ln{white-space:pre;font:13.5px/1.7 ui-monospace,Consolas,Menlo,monospace;padding:0 10px;border-left:3px solid transparent}
+.ln u{text-decoration:none;color:#6b7699;display:inline-block;width:24px}.ln.on{background:rgba(255,210,80,.22);border-left-color:#ffd250;color:#fff}
+#scene{position:relative;min-height:220px}#zs{display:flex;flex-wrap:wrap;gap:20px 56px;padding-right:56px}
+#svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+#svg>path{stroke:var(--ac);stroke-width:2.2;fill:none;marker-end:url(#ar);stroke-dasharray:500;animation:dr .6s forwards}
+@keyframes dr{from{stroke-dashoffset:500}to{stroke-dashoffset:0}}
+.z{flex:1;min-width:150px}.z h4{margin:0 0 6px;color:var(--mu);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+.blk{border:2px solid var(--bd);border-radius:8px;padding:6px 10px;margin-bottom:10px;background:var(--pn);transition:.3s}
+.blk small{display:block;color:var(--mu);font-size:12px}.blk b{font-size:17px}
+.hl{border-color:var(--ac);background:var(--hl);animation:pop .5s}
+@keyframes pop{0%{transform:scale(.93)}60%{transform:scale(1.05)}100%{transform:scale(1)}}
+.fr{opacity:.55;border-style:dashed;text-decoration:line-through}
+.cells{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.c{min-width:46px;text-align:center;border:1px solid var(--bd);border-radius:5px;padding:2px 5px;font-size:15px;font-weight:600;background:var(--pn)}
+.c i,.bt i{display:block;font:11px ui-monospace,monospace;color:var(--mu);font-style:normal;font-weight:400}
+.c.cur{border-color:var(--ok);box-shadow:0 0 0 2px var(--ok)}.c.cur::after{content:"▲";display:block;color:var(--ok);font-size:11px}
+.c.end{border-style:dashed;color:var(--mu)}
+.sg{display:grid;gap:2px;margin-top:6px}.o{font-size:10px;color:var(--mu);text-align:center}
+.f{background:var(--ac);color:#fff;border-radius:4px;padding:3px 4px;text-align:center;font-size:12px;overflow:hidden}.f.hl{background:#e0912f}
+.pd{background:repeating-linear-gradient(45deg,var(--bd),var(--bd) 3px,transparent 3px,transparent 6px);border-radius:4px;min-height:34px}
+.bt{border:1px solid var(--bd);border-radius:4px;text-align:center;font-weight:600;font-size:14px}
+.out pre{margin:4px 0 0;min-height:22px;color:var(--ok);font-size:14px}
+@media(max-width:820px){main{grid-template-columns:1fr;padding:10px}.cols{grid-template-columns:1fr}#ops{display:flex;gap:6px;overflow-x:auto}.op{width:auto;white-space:nowrap;margin:0}}
+</style></head><body>
+<header><h1>C Visualized Part II - Prof. Rahul M. Samant</h1><nav id="tabs"></nav><span class="mu">← → step · Space play · [ ] previous/next operation</span></header>
+<main>
+<aside class="pn"><h3 id="tn"></h3><div id="ops"></div></aside>
+<section>
+<div class="pn" id="info"></div>
+<div class="pn ctl"><button id="b0">⏮ Reset</button><button id="b1">◀ Back</button><button id="bp">▶ Play</button><button id="b2">Next ▶</button>
+<input type="range" id="rg" min="-1" max="0" value="-1"><span id="sc" class="mu"></span>
+<select id="sp"><option value="1900">Slow</option><option value="1200" selected>Normal</option><option value="600">Fast</option></select>
+<button id="o1">◀ Prev op</button><button id="o2">Next op ▶</button></div>
+<div class="note" id="note"></div>
+<div class="cols"><div class="pn code" id="code"></div><div class="pn"><div id="scene"><svg id="svg"></svg><div id="zs"></div></div></div></div>
+<div class="pn out"><b>Output</b><pre id="out"></pre></div>
+</section></main>
+<script>
+const $=s=>document.querySelector(s),esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const hx=n=>'0x'+n.toString(16).toUpperCase().padStart(4,'0');
+const V=(t,a,v,o)=>({t,a,v,...o}),A=(t,a,es,arr,o)=>({t,a,es,arr,...o});
+const SU=()=>({t:'struct Student',a:4096,sz:12,f:[['grade','char',0,1,'?'],['id','int',4,4,'?'],['cgpa','float',8,4,'?']]});
+const F=(b,n,v)=>b.f.find(x=>x[0]==n)[4]=v;
+const UN=(a,n,m)=>({t:'union',a,by:Array(n).fill(0),m}),M3=[['int i','i32'],['float f','f32'],['char c[4]','c']];
+const rd=(y,k)=>{const d=new DataView(new Uint8Array(y).buffer),pc=x=>x>31&&x<127?String.fromCharCode(x):'·';return k=='i32'?d.getInt32(0,1):k=='f32'?+d.getFloat32(0,1).toPrecision(7):k=='f64'?d.getFloat64(0,1):k=='ch'?"'"+pc(y[0])+"'":'"'+y.map(x=>x?pc(x):'∅').join('')+'"'};
+const wr=(u,k,v)=>{const d=new DataView(new Uint8Array(u.by).buffer);k=='i32'?d.setInt32(0,v,1):k=='f32'?d.setFloat32(0,v,1):k=='f64'?d.setFloat64(0,v,1):k=='ch'?d.setUint8(0,v.charCodeAt()):[...v+'\0'].forEach((c,i)=>d.setUint8(i,c.charCodeAt()));u.by=[...new Uint8Array(d.buffer)]};
+const FL=(fn,d,mode)=>({fl:1,z:'d',fn,d:[...d],pos:0,mode,open:1,eof:0}),W=(f,s)=>[...s].forEach(c=>f.d[f.pos++]=c);
+const FP=()=>V('FILE *',4096,'',{p:'F'});
+const T={
+pointers:{n:'Pointers',ops:[
+{t:'Declare & initialize (&)',i:'A pointer stores the address of another variable. The & operator gives an address.',
+c:['int x = 10;','int *p;','p = &x;','printf("%p %d", p, *p);'],
+s:[[0,'x gets 4 bytes at address 0x1000 and holds 10.',b=>b.x=V('int',4096,10)],
+[1,'p can hold the address of an int. Uninitialized, it contains garbage (a wild pointer).',b=>b.p=V('int *',4104,'garbage')],
+[2,'&x is the address of x. p now stores 0x1000, so it points to x.',b=>b.p.p='x'],
+[3,'*p follows the stored address and reads 10.',(b,o)=>o.push('0x1000 10')]]},
+{t:'Dereference & modify (*)',i:'*p reads or writes the variable that p points to.',
+c:['int x = 5;','int *p = &x;','*p = 20;','*p = *p + 1;','printf("%d", x);'],
+s:[[0,'x = 5.',b=>b.x=V('int',4096,5)],[1,'p is initialised with &x.',b=>b.p=V('int *',4104,'',{p:'x'})],
+[2,'*p = 20 writes into the memory p points to, so x changes.',b=>b.x.v=20],
+[3,'Read *p (20), add 1, write the result back through p.',b=>b.x.v=21],
+[4,'x was changed without ever being named.',(b,o)=>o.push('21')]]},
+{t:'Pointer arithmetic & arrays',i:'p+n moves n elements (n × sizeof(type) bytes). a[i] is the same as *(a+i).',
+c:['int a[4] = {10,20,30,40};','int *p = a;','p++;','p = p + 2;','*(p-1) = 99;','printf("%ld", p - a);'],
+s:[[0,'Array elements are contiguous, 4 bytes apart.',b=>b.a=A('int[4]',4096,4,[10,20,30,40])],
+[1,'The array name decays to &a[0].',b=>b.p=V('int *',4112,'',{p:'a:0'})],
+[2,'p++ adds sizeof(int) = 4 bytes: 0x1000 → 0x1004.',b=>b.p.p='a:1'],
+[3,'p + 2 moves two elements = 8 bytes.',b=>b.p.p='a:3'],
+[4,'*(p-1) is a[2]; assign 99 through pointer arithmetic.',b=>b.a.arr[2]=99],
+[5,'Pointer subtraction gives a distance in elements, not bytes.',(b,o)=>o.push('3')]]},
+{t:'Pointer to pointer (**)',i:'A double pointer stores the address of another pointer.',
+c:['int x = 7;','int *p = &x;','int **pp = &p;','**pp = 99;'],
+s:[[0,'x = 7.',b=>b.x=V('int',4096,7)],[1,'p holds &x.',b=>b.p=V('int *',4104,'',{p:'x'})],
+[2,'pp holds &p, the address of a pointer.',b=>b.pp=V('int **',4112,'',{p:'p'})],
+[3,'*pp is p and **pp is x, so x becomes 99.',b=>b.x.v=99]]},
+{t:'Call by reference (swap)',i:'Passing addresses lets a function modify the caller\'s variables.',
+c:['void swap(int *a, int *b) {','  int t = *a;','  *a = *b;','  *b = t;','}','int x=3, y=8;  swap(&x, &y);'],
+s:[[5,'x and y live in main\'s frame.',b=>{b.x=V('int',4096,3);b.y=V('int',4100,8)}],
+[0,'The call copies the two addresses into the parameters a and b.',b=>{b.a=V('int *',4160,'',{p:'x'});b.b=V('int *',4168,'',{p:'y'})}],
+[1,'t = *a = 3 (a local temporary).',b=>b.t=V('int',4176,3)],
+[2,'*a = *b: x becomes 8.',b=>b.x.v=8],[3,'*b = t: y becomes 3.',b=>b.y.v=3],
+[4,'On return swap\'s frame disappears, but x and y stay swapped.',b=>{delete b.a;delete b.b;delete b.t}]]},
+{t:'Dynamic memory (malloc / realloc / free)',i:'malloc reserves heap bytes that you must free. After free, the pointer dangles: set it to NULL.',
+c:['int *p = malloc(3*sizeof(int));','p[0]=4; p[1]=5;','p = realloc(p, 5*sizeof(int));','free(p);','p = NULL;'],
+s:[[0,'malloc returns the address of 12 uninitialised heap bytes (calloc would zero them).',b=>{b.p=V('int *',4096,'');b.h=A('int[3]',20480,4,['?','?','?'],{z:'h'});b.p.p='h:0'}],
+[1,'p[1] is *(p+1). Write 4 and 5.',b=>{b.h.arr[0]=4;b.h.arr[1]=5}],
+[2,'realloc grows the block to 20 bytes and keeps the old data (the address may change).',b=>{b.h.arr=[4,5,'?','?','?'];b.h.t='int[5]'}],
+[3,'free returns the memory to the heap. p still holds the old address: a dangling pointer!',b=>b.h.fr=1],
+[4,'NULL makes the pointer safely testable: if (p != NULL).',b=>{b.p.p=null;b.p.v='NULL'}]]}]},
+structures:{n:'Structures',ops:[
+{t:'Define & memory layout (padding)',i:'A struct groups members of different types. The compiler may add padding bytes (hatched) for alignment.',
+c:['struct Student {','  char  grade;','  int   id;','  float cgpa;','};','struct Student s;','printf("%zu", sizeof s);'],
+s:[[5,'s gets 12 bytes. Members are stored in declaration order; grade is at offset 0.',b=>b.s=SU()],
+[2,'An int needs a 4-byte aligned offset, so 3 padding bytes follow grade.',b=>0],
+[6,'sizeof is 12, not 1+4+4 = 9, because of padding.',(b,o)=>o.push('12')]]},
+{t:'Initialize & access (. operator)',i:'Use the dot operator to select a member of a structure variable.',
+c:['struct Student s = {\'A\', 101, 8.5};','s.id = 102;','scanf("%f", &s.cgpa);   // input 9.1','printf("%d %.1f", s.id, s.cgpa);'],
+s:[[0,'A brace initialiser fills members in order.',b=>{b.s=SU();F(b.s,'grade',"'A'");F(b.s,'id',101);F(b.s,'cgpa',8.5)}],
+[1,'s.id selects the id member.',b=>F(b.s,'id',102)],
+[2,'&s.cgpa is the address of that member (0x1008).',b=>F(b.s,'cgpa',9.1)],
+[3,'Members are read the same way.',(b,o)=>o.push('102 9.1')]]},
+{t:'Pointer to structure (->)',i:'p->m is shorthand for (*p).m.',
+c:['struct Student s = {\'B\', 7, 9.0};','struct Student *p = &s;','p->id = 8;','(*p).cgpa = 9.5;','printf("%d", p->id);'],
+s:[[0,'s is initialised.',b=>{b.s=SU();F(b.s,'grade',"'B'");F(b.s,'id',7);F(b.s,'cgpa',9)}],
+[1,'p holds the address of the whole structure.',b=>b.p=V('struct Student *',4112,'',{p:'s'})],
+[2,'p->id follows the pointer and selects id.',b=>F(b.s,'id',8)],
+[3,'(*p).cgpa is identical; -> is the preferred form.',b=>F(b.s,'cgpa',9.5)],[4,'',(b,o)=>o.push('8')]]},
+{t:'Array of structures',i:'Structure elements sit back to back; p++ advances by sizeof(struct).',
+c:['struct P { int id; char g; };','struct P cl[3] = {{1,\'A\'},{2,\'B\'},{3,\'C\'}};','for (i=0;i<3;i++) cl[i].id *= 10;','struct P *q = cl;','q++;','printf("%d", q->id);'],
+s:[[1,'Three elements of 8 bytes each (4 id + 1 char + 3 padding).',b=>b.cl=A('struct P[3]',4096,8,['{1,A}','{2,B}','{3,C}'])],
+[2,'i = 0: cl[0].id becomes 10.',b=>b.cl.arr[0]='{10,A}'],[2,'i = 1: cl[1].id becomes 20.',b=>b.cl.arr[1]='{20,B}'],[2,'i = 2: cl[2].id becomes 30.',b=>b.cl.arr[2]='{30,C}'],
+[3,'q points to the first element.',b=>b.q=V('struct P *',4128,'',{p:'cl:0'})],
+[4,'q++ moves 8 bytes: 0x1000 → 0x1008.',b=>b.q.p='cl:1'],[5,'',(b,o)=>o.push('20')]]},
+{t:'Nested structures',i:'A structure member can itself be a structure; chain dot operators.',
+c:['struct Date { int d, m, y; };','struct Emp { int id; struct Date dob; };','struct Emp e = {1, {15, 8, 2000}};','e.dob.y = 2001;','printf("%d", e.dob.y);'],
+s:[[2,'The inner struct is stored inline, inside the outer one.',b=>b.e={t:'struct Emp',a:4096,sz:16,f:[['id','int',0,4,1],['dob.d','int',4,4,15],['dob.m','int',8,4,8],['dob.y','int',12,4,2000]]}],
+[3,'e.dob.y: first select dob, then y.',b=>F(b.e,'dob.y',2001)],[4,'',(b,o)=>o.push('2001')]]},
+{t:'Pass to function: by value vs by address',i:'By value copies the whole struct; by address passes just a pointer and can modify the original.',
+c:['struct P { int x; };','void byVal (struct P s) { s.x = 99; }','void byAddr(struct P *s) { s->x = 99; }','struct P m = {1};','byVal(m);','byAddr(&m);'],
+s:[[3,'m.x = 1.',b=>b.m=V('struct P',4096,'{x=1}')],
+[4,'byVal receives a full copy of m.',b=>b.s=V('struct P (copy)',4160,'{x=1}')],
+[1,'Only the copy changes.',b=>b.s.v='{x=99}'],
+[4,'On return the copy is discarded; m is still 1.',b=>delete b.s],
+[5,'byAddr receives only an address (8 bytes).',b=>b.s=V('struct P *',4160,'',{p:'m'})],
+[2,'s->x modifies the caller\'s m.',b=>b.m.v='{x=99}'],
+[5,'The pointer is discarded but the change stays. Prefer pointers for large structs.',b=>delete b.s]]}]},
+unions:{n:'Unions',ops:[
+{t:'Shared memory & type punning',i:'All union members share the same bytes. sizeof(union) = size of the largest member.',
+c:['union Data { int i; float f; char c[4]; };','union Data d;','d.i = 1078530011;   // 0x40490FDB','printf("%f", d.f);','printf("%d", (unsigned char)d.c[0]);'],
+s:[[1,'Every member starts at 0x1000; sizeof is 4, not 4+4+4.',b=>b.d=UN(4096,4,M3)],
+[2,'Writing d.i stores 0x40490FDB; on little-endian machines the bytes are DB 0F 49 40.',b=>wr(b.d,'i32',1078530011)],
+[3,'d.f reinterprets the same 4 bytes as an IEEE-754 float: π.',(b,o)=>o.push('3.141593')],
+[4,'c[0] is the lowest byte, 0xDB = 219.',(b,o)=>o.push('219')]]},
+{t:'Last write wins',i:'Writing one member overwrites bytes seen by the others. Only the last-written member is meaningful.',
+c:['d.i = 65;','d.f = 2.5;','strcpy(d.c, "Hi");','printf("%d", d.i);'],
+s:[[0,'d.i = 65 sets the bytes 41 00 00 00.',b=>{b.d=UN(4096,4,M3);wr(b.d,'i32',65)}],
+[1,'d.f = 2.5 rewrites all 4 bytes (00 00 20 40); the int value is lost.',b=>wr(b.d,'f32',2.5)],
+[2,'strcpy writes 48 69 00; the 4th byte (40) is left over.',b=>wr(b.d,'c','Hi')],
+[3,'Reading d.i now gives a mix of the string and old float bytes.',(b,o)=>o.push(rd(b.d.by,'i32'))]]},
+{t:'Tagged union (type + union)',i:'A tag member remembers which union member is currently valid.',
+c:['struct Val { char tag; union { int i; float f; } u; };','struct Val v;','v.tag = \'i\'; v.u.i = 7;','if (v.tag==\'i\') printf("%d", v.u.i);','v.tag = \'f\'; v.u.f = 1.5;','if (v.tag==\'f\') printf("%.1f", v.u.f);'],
+s:[[1,'A tag plus a 4-byte union.',b=>{b.tag=V('char',4096,'?');b.u=UN(4100,4,[['int i','i32'],['float f','f32']])}],
+[2,'Store an int and mark the tag \'i\'.',b=>{b.tag.v="'i'";wr(b.u,'i32',7)}],[3,'The tag says which member to read.',(b,o)=>o.push('7')],
+[4,'Reuse the same bytes for a float and update the tag.',b=>{b.tag.v="'f'";wr(b.u,'f32',1.5)}],[5,'',(b,o)=>o.push('1.5')]]},
+{t:'struct vs union size',i:'A struct stores members side by side (plus padding); a union overlaps them.',
+c:['struct S { char c; int i; double d; };','union  U { char c; int i; double d; };','S.c = \'A\';  U.c = \'A\';','S.d = 1.0;  U.d = 1.0;','printf("%zu %zu", sizeof(struct S), sizeof(union U));'],
+s:[[0,'struct S: members sit side by side, with padding, 16 bytes.',b=>b.S={t:'struct S',a:4096,sz:16,f:[['c','char',0,1,'?'],['i','int',4,4,'?'],['d','double',8,8,'?']]}],
+[1,'union U: members overlap, so only 8 bytes (the largest).',b=>b.U=UN(4160,8,[['char c','ch'],['int i','i32'],['double d','f64']])],
+[2,'Writing c touches one byte in each.',b=>{F(b.S,'c',"'A'");wr(b.U,'ch','A')}],
+[3,'In the union, d overwrites c and i too: they now show garbage.',b=>{F(b.S,'d',1);wr(b.U,'f64',1)}],
+[4,'',(b,o)=>o.push('16 8')]]}]},
+files:{n:'Files',ops:[
+{t:'Open, write & close',i:'fopen returns a FILE* handle (or NULL). Writing advances the file position.',
+c:['FILE *fp = fopen("a.txt", "w");','if (fp == NULL) { perror("fopen"); exit(1); }','fputc(\'H\', fp);','fputs("ello\\n", fp);','fprintf(fp, "%d", 42);','fclose(fp);'],
+s:[[0,'Mode "w" creates the file or truncates an existing one. (r = read, a = append, +  = read and write.)',b=>{b.fp=FP();b.F=FL('a.txt','','w')}],
+[1,'Always check: fopen returns NULL on failure.',b=>0],
+[2,'fputc writes one character.',b=>W(b.F,'H')],[3,'fputs writes a string (no newline is added).',b=>W(b.F,'ello\n')],
+[4,'fprintf writes formatted text, like printf.',b=>W(b.F,'42')],
+[5,'fclose flushes buffers to disk and releases the handle.',b=>b.F.open=0]]},
+{t:'Read: fgetc, fgets, fscanf, EOF',i:'Reads advance the position. EOF becomes true only after a read hits the end.',
+c:['FILE *fp = fopen("a.txt", "r");','ch = fgetc(fp);','fgets(buf, 20, fp);','fscanf(fp, "%d", &n);','ch = fgetc(fp);   // at end','printf("%d", feof(fp));'],
+s:[[0,'Mode "r" needs an existing file; position starts at 0.',b=>{b.fp=FP();b.F=FL('a.txt','Hi\n42','r');b.ch=V('int',4104,'?');b.buf=V('char[20]',4112,'?');b.n=V('int',4140,'?')}],
+[1,'fgetc returns the next character and moves the position by 1.',b=>{b.ch.v="'H'";b.F.pos=1}],
+[2,'fgets reads up to and including the newline, then adds \\0.',b=>{b.buf.v='"i\\n"';b.F.pos=3}],
+[3,'fscanf parses formatted input and returns the number of items read.',b=>{b.n.v=42;b.F.pos=5}],
+[4,'Nothing is left: fgetc returns EOF (-1) and sets the EOF flag.',b=>{b.ch.v='EOF (-1)';b.F.eof=1}],
+[5,'feof is true only after a read fails, so loop on the read result.',(b,o)=>o.push('non-zero')]]},
+{t:'Binary I/O: fwrite / fread',i:'fwrite(ptr, size, count, fp) copies raw records between memory and file.',
+c:['struct St { int id; char name[8]; } s = {1,"Ravi"}, t;','fp = fopen("s.dat", "wb");','fwrite(&s, sizeof(s), 1, fp);','s.id = 2; strcpy(s.name, "Mina");','fwrite(&s, sizeof(s), 1, fp);','fclose(fp); fp = fopen("s.dat", "rb");','fread(&t, sizeof(t), 1, fp);'],
+s:[[1,'"wb" opens a binary file; bytes are written exactly as in memory.',b=>{b.s=V('struct St',4096,'{1,Ravi}');b.t=V('struct St',4120,'?');b.fp=V('FILE *',4144,'',{p:'F'});b.F=FL('s.dat',[],'wb')}],
+[2,'One 12-byte record is copied to the file.',b=>b.F.d[b.F.pos++]='{1,Ravi}'],
+[3,'Update the variable.',b=>b.s.v='{2,Mina}'],
+[4,'The second record is written after the first.',b=>b.F.d[b.F.pos++]='{2,Mina}'],
+[5,'Close, then reopen in "rb": position resets to 0.',b=>{b.F.mode='rb';b.F.pos=0}],
+[6,'fread copies one record into t and returns the count read (1).',b=>{b.t.v='{1,Ravi}';b.F.pos=1}]]},
+{t:'Random access: fseek, ftell, rewind',i:'Move the position without reading: SEEK_SET (start), SEEK_CUR (current), SEEK_END (end).',
+c:['fp = fopen("a.txt","r");   // contains ABCDEFGH','fseek(fp, 3, SEEK_SET);','ch = fgetc(fp);','fseek(fp, -2, SEEK_END);','n = ftell(fp);','rewind(fp);'],
+s:[[0,'The file has 8 characters; position is 0.',b=>{b.fp=FP();b.F=FL('a.txt','ABCDEFGH','r');b.ch=V('int',4104,'?');b.n=V('int',4112,'?')}],
+[1,'SEEK_SET counts from the start: position 3.',b=>b.F.pos=3],
+[2,'fgetc reads \'D\' and moves to 4.',b=>{b.ch.v="'D'";b.F.pos=4}],
+[3,'SEEK_END with -2 gives position 8 - 2 = 6.',b=>b.F.pos=6],
+[4,'ftell reports the current position.',b=>b.n.v=6],
+[5,'rewind(fp) is fseek(fp,0,SEEK_SET) and clears EOF/error flags.',b=>b.F.pos=0]]},
+{t:'Append, truncate, rename & remove',i:'Mode "a" always writes at the end; mode "w" erases existing content.',
+c:['fp = fopen("a.txt","a");   // contains AB','fputs("CD", fp);','fclose(fp);','fp = fopen("a.txt","w");   // careful!','fclose(fp);','rename("a.txt","b.txt");','remove("b.txt");'],
+s:[[0,'Mode "a" positions at the end; every write appends.',b=>{b.fp=FP();b.F=FL('a.txt','AB','a');b.F.pos=2}],
+[1,'CD is added after AB.',b=>W(b.F,'CD')],[2,'Closed.',b=>b.F.open=0],
+[3,'Mode "w" truncates: all existing data is erased on open!',b=>{b.F.d=[];b.F.pos=0;b.F.open=1;b.F.mode='w'}],
+[4,'Closed (the file is now empty).',b=>b.F.open=0],
+[5,'rename changes the file name; returns 0 on success.',b=>b.F.fn='b.txt'],
+[6,'remove deletes the file from disk; the old handle is now useless.',b=>{delete b.F;b.fp.v='(stale)'}]]}]}};
+let B,O,PV,tp='pointers',oi=0,si=-1,tm=0;
+const cur=()=>T[tp].ops[oi],ad=k=>{const[n,i]=k.split(':');return B[n].a+(i?i*B[n].es:0)};
+function run(){B={};O=[];PV='{}';const s=cur().s;for(let k=0;k<=si;k++){PV=JSON.stringify(B);s[k][2](B,O)}}
+function blk(n,b,q){
+const hl=!q||JSON.stringify(q)!=JSON.stringify(b)?' hl':'',fr=b.fr?' fr':'';
+if(b.arr)return `<div class="blk${fr}" data-k="${n}"><small>${b.t} ${n} · ${hx(b.a)}</small><div class="cells">${b.arr.map((v,i)=>`<div class="c${q&&q.arr&&q.arr[i]===v?'':' hl'}" data-k="${n}:${i}"><i>[${i}]</i>${esc(''+v)}<i>${hx(b.a+i*b.es)}</i></div>`).join('')}</div></div>`;
+if(b.f){let r='',i=0;while(i<b.sz){const f=b.f.find(x=>x[2]==i);if(f){const y=q&&q.f&&q.f.find(x=>x[0]==f[0]);r+=`<div class="f${y&&y[4]===f[4]?'':' hl'}" style="grid-column:span ${f[3]}" title="${f[1]} ${f[0]}">${f[0]}<br><b>${esc(''+f[4])}</b></div>`;i+=f[3]}else{r+='<div class="pd" title="padding"></div>';i++}}
+return `<div class="blk" data-k="${n}"><small>${b.t} ${n} · ${hx(b.a)} · sizeof = ${b.sz}</small><div class="sg" style="grid-template-columns:repeat(${b.sz},1fr)">${[...Array(b.sz)].map((_,i)=>`<div class="o">${i}</div>`).join('')}${r}</div></div>`}
+if(b.by){const L=b.by.length,k={i32:4,f32:4,f64:8,ch:1,c:L};
+return `<div class="blk" data-k="${n}"><small>${b.t} ${n} · ${hx(b.a)} · sizeof = ${L}</small><div class="sg" style="grid-template-columns:repeat(${L},1fr)">${b.by.map((x,i)=>`<div class="bt${q&&q.by&&q.by[i]===x?'':' hl'}"><i>byte ${i}</i>${x.toString(16).toUpperCase().padStart(2,'0')}</div>`).join('')}${b.m.map(([l,d])=>`<div class="f" style="grid-column:1/span ${Math.min(k[d],L)}">${l} = <b>${esc(''+rd(b.by,d))}</b></div>`).join('')}</div></div>`}
+if(b.fl)return `<div class="blk${hl}" data-k="${n}"><small>"${b.fn}" · mode "${b.mode}" · ${b.open?'OPEN':'CLOSED'} · position = ${b.pos} · EOF flag = ${b.eof}</small><div class="cells">${b.d.map((c,i)=>`<div class="c${i==b.pos?' cur':''}"><i>${i}</i>${c=='\n'?'↵':esc(c)}</div>`).join('')}<div class="c end${b.pos>=b.d.length?' cur':''}"><i>${b.d.length}</i>EOF</div></div></div>`;
+const v=b.p&&B[b.p.split(':')[0]]?hx(ad(b.p)):b.v;
+return `<div class="blk${fr}${hl}" data-k="${n}"><small>${b.t} ${n} · ${hx(b.a)}</small><b>${esc(''+v)}</b></div>`}
+function arrows(){const r=$('#scene').getBoundingClientRect();let s='<defs><marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0L8,4L0,8z" fill="var(--ac)"/></marker></defs>';
+for(const n in B){const b=B[n];if(!b.p)continue;const a=$(`[data-k="${n}"]`),t=$(`[data-k="${b.p}"]`);if(!a||!t)continue;
+const A=a.getBoundingClientRect(),Tt=t.getBoundingClientRect(),x1=A.right-r.left,y1=A.top+A.height/2-r.top,y2=Tt.top+Tt.height/2-r.top;let x2,c;
+if(Tt.left>A.right+10){x2=Tt.left-r.left;c=`C${x1+40},${y1} ${x2-40},${y2} ${x2},${y2}`}else{x2=Tt.right-r.left;const m=Math.max(x1,x2)+45;c=`C${m},${y1} ${m},${y2} ${x2},${y2}`}
+s+=`<path d="M${x1},${y1}${c}"/>`}
+$('#svg').innerHTML=s}
+function draw(){const op=cur(),q=JSON.parse(PV),Z={s:'Stack',h:'Heap',d:'File on disk'},z={s:'',h:'',d:''};
+$('#info').innerHTML=`<h2>${esc(op.t)}</h2><p>${esc(op.i)}</p>`;
+$('#code').innerHTML=op.c.map((l,i)=>`<div class="ln${op.s[si]&&op.s[si][0]==i?' on':''}"><u>${i+1}</u>${esc(l)}</div>`).join('');
+$('#note').textContent=si<0?'Press Next ▶ or Play to begin. Highlighted boxes show what just changed.':op.s[si][1]||'The statement runs and produces output.';
+for(const n in B)z[B[n].z||'s']+=blk(n,B[n],q[n]);
+$('#zs').innerHTML=Object.keys(Z).filter(k=>z[k]).map(k=>`<div class="z"><h4>${Z[k]}</h4>${z[k]}</div>`).join('')||'<p class="mu">Memory is empty. Press Next ▶.</p>';
+$('#out').textContent=O.join('\n')||'—';requestAnimationFrame(arrows)}
+function menu(){$('#tabs').innerHTML=Object.keys(T).map(k=>`<button class="${k==tp?'on':''}" data-t="${k}">${T[k].n}</button>`).join('');
+$('#tn').textContent=T[tp].n;$('#ops').innerHTML=T[tp].ops.map((o,i)=>`<button class="op${i==oi?' on':''}" data-o="${i}"><u>${i+1}</u>${esc(o.t)}</button>`).join('')}
+function upd(){run();draw();const n=cur().s.length;$('#rg').max=n-1;$('#rg').value=si;$('#sc').textContent=`Step ${si+1} / ${n}`}
+function go(t,o){stop();tp=t;oi=o;si=-1;menu();upd()}
+function st(d){si=Math.max(-1,Math.min(cur().s.length-1,si+d));upd()}
+function stop(){clearInterval(tm);tm=0;$('#bp').textContent='▶ Play'}
+function play(){if(tm)return stop();if(si>=cur().s.length-1)si=-1;$('#bp').textContent='⏸ Pause';st(1);tm=setInterval(()=>{if(si>=cur().s.length-1)stop();else st(1)},+$('#sp').value)}
+const flat=[];for(const k in T)T[k].ops.forEach((_,i)=>flat.push([k,i]));
+function hop(d){const x=(flat.findIndex(e=>e[0]==tp&&e[1]==oi)+d+flat.length)%flat.length;go(...flat[x])}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-t],[data-o]');if(!t)return;t.dataset.t?go(t.dataset.t,0):go(tp,+t.dataset.o)});
+$('#b0').onclick=()=>{stop();si=-1;upd()};$('#b1').onclick=()=>{stop();st(-1)};$('#b2').onclick=()=>{stop();st(1)};$('#bp').onclick=play;
+$('#o1').onclick=()=>hop(-1);$('#o2').onclick=()=>hop(1);$('#rg').oninput=e=>{stop();si=+e.target.value;upd()};
+$('#sp').onchange=()=>{if(tm){stop();play()}};onresize=arrows;
+onkeydown=e=>{const t=e.target.tagName,k=e.key;if(t=='SELECT'||t=='INPUT')return;if(k=='ArrowRight'){stop();st(1)}else if(k=='ArrowLeft'){stop();st(-1)}else if(k==']')hop(1);else if(k=='[')hop(-1);else if(k==' '&&t!='BUTTON'){e.preventDefault();play()}};
+go('pointers',0);
+</script></body></html>
